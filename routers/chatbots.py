@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Response
 from services.chatbot.chatbot_config import save_chatbot_config
 from services.chatbot.chatbot_create import generate_chatbot
-from fastapi.staticfiles import StaticFiles
+from services.chatbot.chatbot_question import generate_response
 from db.models.chatbot import Config, Message
 
 router = APIRouter(prefix="/chatbot",
@@ -19,6 +19,7 @@ async def create_chatbot(client_id:str):
     return await generate_chatbot(client_id)
 
 
-@router.post("/mensajePrueba")
-def menesajePrueba(message:Message):
-    return {"response": f"La persona con este nombre {message.text} jamas lo pescara una mina "}
+@router.post("/generate-response")
+async def mensajePrueba(message: Message):
+    response = await generate_response(message)
+    return {"response" : response}

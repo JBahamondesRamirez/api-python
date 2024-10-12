@@ -1,8 +1,6 @@
 from db.client import db_client
 from fastapi import Response
 
-
-
 async def generate_chatbot(client_id: str):
     config_chatbot = db_client.chatbots.find_one({"clientId":(client_id)})
 
@@ -58,8 +56,8 @@ async def generate_chatbot(client_id: str):
                 <path d="M8 16h8v2H8z" />
             </svg>
             <div class="message-text">
-                Hola 😍<br />
-                Como puedo ayudar hoy?
+                Hola <br />
+                ¿Cómo te puedo ayudar?
             </div>
             </div>
             <div class="message user-message">
@@ -96,7 +94,7 @@ async def generate_chatbot(client_id: str):
                 var link = document.createElement('link');
                 link.type = 'text/css';
                 link.rel = 'stylesheet';
-                link.href = 'http://localhost:8000/static/style.css'
+                link.href = 'http://api-fastapi-env.eba-rmcgurap.us-east-1.elasticbeanstalk.com//static/style.css'
                 document.head.appendChild(link);
                 var linkIcons = document.createElement('link');
                 linkIcons.rel = 'stylesheet';
@@ -118,7 +116,7 @@ async def generate_chatbot(client_id: str):
                 const chatbotToggler = document.querySelector("#chatbot-toggler");
                 const closeChatbot = document.querySelector("#close-chatbot");
 
-                const ApiUrl = `http://localhost:8000/chatbot/mensajePrueba`;
+                const ApiUrl = `http://api-fastapi-env.eba-rmcgurap.us-east-1.elasticbeanstalk.com/chatbot/generate-response`;
 
                 const userData = {{
                     message: null,
@@ -130,6 +128,7 @@ async def generate_chatbot(client_id: str):
                     const div = document.createElement("div");
                     div.classList.add("message", ...classes);
                     div.innerHTML = content;
+                    console.log(content)
                     return div;
                 }};
 
@@ -145,11 +144,14 @@ async def generate_chatbot(client_id: str):
                     try {{
                         const response = await fetch(ApiUrl, requestOptions);
                         const data = await response.json();
+
                         if (!response.ok) throw new Error(data.error.message);
+
                         const apiResponseText = data.response;
                         messageElement.innerHTML = apiResponseText;
+
                     }} catch (error) {{
-                        console.log(error);
+                        messageElement.innerHTML = "Error al obtener la respuesta del bot.";
                     }} finally {{
                         incomingMessageDiv.classList.remove("thinking");
                         chatBody.scrollTo({{ top: chatBody.scrollHeight, behavior: "smooth" }});
@@ -158,47 +160,39 @@ async def generate_chatbot(client_id: str):
 
                 const handleOutgoingMessage = (e) => {{
                     e.preventDefault();
+
                     userData.message = messageInput.value.trim();
                     messageInput.value = "";
-                    messageInput.dispatchEvent(new Event("input"));
+
                     const messageContent = `<div class="message-text"></div>`;
-                    const outgoingMessageDiv = createMessageElement(
-                        messageContent,
-                        "user-message"
-                    );
-                    outgoingMessageDiv.querySelector(".message-text").textContent =
-                        userData.message;
+                    const outgoingMessageDiv = createMessageElement(messageContent, "user-message");
+                    outgoingMessageDiv.querySelector(".message-text").textContent = userData.message;
                     chatBody.appendChild(outgoingMessageDiv);
+
                     chatBody.scrollTo({{ top: chatBody.scrollHeight, behavior: "smooth" }});
+
                     setTimeout(() => {{
-                        const messageContent = `<svg class="bot-avatar" fill="#000000" width="50px"height="50px"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                            <path
-                                d="M21.928 11.607c-.202-.488-.635-.605-.928-.633V8c0-1.103-.897-2-2-2h-6V4.61c.305-.274.5-.668.5-1.11a1.5 1.5 0 0 0-3 0c0 .442.195.836.5 1.11V6H5c-1.103 0-2 .897-2 2v2.997l-.082.006A1 1 0 0 0 1.99 12v2a1 1 0 0 0 1 1H3v5c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5a1 1 0 0 0 1-1v-1.938a1.006 1.006 0 0 0-.072-.455zM5 20V8h14l.001 3.996L19 12v2l.001.005.001 5.995H5z"
-                            />
+                        const botThinkingContent = `<svg class="bot-avatar" fill="#000000" width="50px" height="50px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21.928 11.607c-.202-.488-.635-.605-.928-.633V8c0-1.103-.897-2-2-2h-6V4.61c.305-.274.5-.668.5-1.11a1.5 1.5 0 0 0-3 0c0 .442.195.836.5 1.11V6H5c-1.103 0-2 .897-2 2v2.997l-.082.006A1 1 0 0 0 1.99 12v2a1 1 0 0 0 1 1H3v5c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5a1 1 0 0 0 1-1v-1.938a1.006 1.006 0 0 0-.072-.455zM5 20V8h14l.001 3.996L19 12v2l.001.005.001 5.995H5z"/>
                             <ellipse cx="8.5" cy="12" rx="1.5" ry="2" />
                             <ellipse cx="15.5" cy="12" rx="1.5" ry="2" />
-                            <path d="M8 16h8v2H8z" />
-                          </svg>
-                          <div class="message-text">
+                            <path d="M8 16h8v2H8z"/>
+                        </svg>
+                        <div class="message-text">
                             <div class="thinking-indicator">
-                              <div class="dot"></div>
-                              <div class="dot"></div>
-                              <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
                             </div>
-                          </div>`;
-                        const incomingMessageDiv = createMessageElement(
-                          messageContent,
-                          "bot-message",
-                          "thinking"
-                        );
-                        chatBody.scrollTo({{ top: chatBody.scrollHeight, behavior: "smooth" }});
-                        chatBody.appendChild(incomingMessageDiv);
-                        generateBotResponse(incomingMessageDiv);
-                    }}, 600);
+                        </div>`;
+
+                    const incomingMessageDiv = createMessageElement(botThinkingContent, "bot-message", "thinking");
+                    chatBody.appendChild(incomingMessageDiv);
+                    chatBody.scrollTo({{ top: chatBody.scrollHeight, behavior: "smooth" }});
+                    generateBotResponse(incomingMessageDiv);
+                    }}, 1000)
                 }};
+
                 messageInput.addEventListener("keydown", (e) => {{
                     const userMessage = e.target.value.trim();
                     if (e.key == "Enter" && userMessage && !e.shiftKey && window.innerWidth > 768) {{
