@@ -94,7 +94,7 @@ async def generate_chatbot(client_id: str):
                 var link = document.createElement('link');
                 link.type = 'text/css';
                 link.rel = 'stylesheet';
-                link.href = 'http://api-fastapi-env.eba-rmcgurap.us-east-1.elasticbeanstalk.com//static/style.css'
+                link.href = 'http://44.218.202.69:8000/static/style.css'
                 document.head.appendChild(link);
                 var linkIcons = document.createElement('link');
                 linkIcons.rel = 'stylesheet';
@@ -116,7 +116,7 @@ async def generate_chatbot(client_id: str):
                 const chatbotToggler = document.querySelector("#chatbot-toggler");
                 const closeChatbot = document.querySelector("#close-chatbot");
 
-                const ApiUrl = `http://api-fastapi-env.eba-rmcgurap.us-east-1.elasticbeanstalk.com/chatbot/generate-response`;
+                const ApiUrl = `http://44.218.202.69:8000/chatbot/generate-response`;
 
                 const userData = {{
                     message: null,
