@@ -1,11 +1,3 @@
-langchain_huggingface
-sentence_transformers
 fastapi
 uvicorn
 pymongo
-python-multipart
-langchain
-langchain_community
-langchain_mongodb
-
-

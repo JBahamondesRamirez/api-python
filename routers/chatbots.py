@@ -1,25 +1,21 @@
 from fastapi import APIRouter, Response
-from services.chatbot.chatbot_config import save_chatbot_config
-from services.chatbot.chatbot_create import generate_chatbot
-from services.chatbot.chatbot_question import generate_response
-from db.models.chatbot import Config, Message
+from db.schemas.chatbot import Chatbot, Message
+from crud.chatbot import generate_response, create_script, create_chatbot
 
 router = APIRouter(prefix="/chatbot",
                    tags=["Chatbot"])
 
+@router.post("/create_chatbot")
+async def create_chatbot_db(chatbot : Chatbot):
+    chatbot_created = await create_chatbot(chatbot)
+    return {"status": "success",
+            "chatbot" : chatbot_created}
 
-@router.post("/chatbot-config")
-async def create_config(config : Config):
-    chatbot_config = await save_chatbot_config(config)
-    return {"status": "succes",
-            "config" : chatbot_config}
-
-@router.get("/{client_id}.js", response_class=Response)
-async def create_chatbot(client_id:str):
-    return await generate_chatbot(client_id)
-
+@router.get("/{chatbot_id}.js", response_class=Response)
+async def create_script_chatbot(chatbot_id:str):
+    return await create_script(chatbot_id)
 
 @router.post("/generate-response")
-async def mensajePrueba(message: Message):
+async def message_test(message: Message):
     response = await generate_response(message)
     return {"response" : response}
