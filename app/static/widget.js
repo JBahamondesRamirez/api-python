@@ -1,8 +1,6 @@
 const chatbot = {
   init: function (config) {
     const container = document.querySelector(config.container);
-
-    const name = config.name;
     const position = config.position;
     const primaryColor = config.primaryColor;
     const secondaryColor = config.secondaryColor;
@@ -10,21 +8,13 @@ const chatbot = {
     const welcomeMessage = config.welcomeMessage;
     const fontSize = config.fontSize;
     const chatbot_id = config.chatbot_id;
-
+    const name = config.name;
+    
     container.style.setProperty("--primary-color", primaryColor);
     container.style.setProperty("--secondary-color", secondaryColor);
     container.style.setProperty("--third-color", thirdColor);
     container.style.setProperty("--scale-factor-chatbot", fontSize);
-
-    var linkIcons = document.createElement("link");
-    linkIcons.rel = "stylesheet";
-    linkIcons.href =
-      "https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,0,0";
-    document.head.appendChild(linkIcons);
-
-    if (config.position) {
-      container.classList.add(position);
-    }
+    container.classList.add(position);
 
     container.innerHTML = `
           <button id="chatbot-toggler">
@@ -161,6 +151,7 @@ const chatbot = {
 
       userData.question = messageInput.value.trim();
       messageInput.value = "";
+      messageInput.style.height = `${initialInputHeight}px`;
 
       const messageContent = `<div class="message-text"></div>`;
       const outgoingMessageDiv = createMessageElement(
@@ -217,16 +208,26 @@ const chatbot = {
       document.querySelector(".chat-form").computedStyleMap.borderRaduis =
         messageInput.scrollHeight > initialInputHeight ? "15px" : "32px";
     });
+
+    //probarEste
+    /*messageInput.addEventListener("input", () => {
+      messageInput.style.height = `${initialInputHeight}px`;
+      messageInput.style.height = `${messageInput.scrollHeight}px`;
+      const borderRadius =
+        messageInput.scrollHeight > initialInputHeight ? "15px" : "32px";
+      messageInput.style.borderRadius = borderRadius;
+    });*/
+
     sendMessageButton.addEventListener("click", (e) =>
       handleOutgoingMessage(e)
     );
 
     chatbotToggler.addEventListener("click", () => {
-      document.body.classList.toggle("show-chatbot");
+      container.classList.toggle("show-chatbot");
     });
 
     closeChatbot.addEventListener("click", () => {
-      document.body.classList.remove("show-chatbot");
+      container.classList.remove("show-chatbot");
     });
   },
 };

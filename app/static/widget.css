@@ -7,22 +7,22 @@
   --scale-factor-chatbot: 1.2;
 }
 
-.bottom-right #chatbot-toggler {
+#chatbot-container.bottom-right #chatbot-toggler {
   right: 35px;
   bottom: 30px;
 }
 
-.bottom-right .chatbot-popup {
+#chatbot-container.bottom-right .chatbot-popup {
   right: 35px;
   bottom: 90px;
 }
 
-.bottom-left #chatbot-toggler {
+#chatbot-container.bottom-left #chatbot-toggler {
   bottom: 30px;
   left: 35px;
 }
 
-.bottom-left .chatbot-popup {
+#chatbot-container.bottom-left .chatbot-popup {
   bottom: 90px;
   left: 35px;
 }
@@ -41,7 +41,7 @@
   transition: all 0.2s ease;
 }
 
-body.show-chatbot #chatbot-toggler {
+#chatbot-container.show-chatbot #chatbot-toggler {
   transform: rotate(90deg);
 }
 
@@ -50,12 +50,12 @@ body.show-chatbot #chatbot-toggler {
   position: absolute;
 }
 
-body.show-chatbot #chatbot-toggler span:first-child,
+#chatbot-container.show-chatbot #chatbot-toggler span:first-child,
 #chatbot-toggler span:last-child {
   opacity: 0;
 }
 
-body.show-chatbot #chatbot-toggler span:last-child {
+#chatbot-container.show-chatbot #chatbot-toggler span:last-child {
   opacity: 1;
 }
 
@@ -65,15 +65,12 @@ body.show-chatbot #chatbot-toggler span:last-child {
   max-width: 420px;
   display: none;
   background: #fff;
+  overflow: hidden;
+  border-radius: 15px;
+  transform: scale(0.1);
+  pointer-events: none;
   box-shadow: 0px 0px 30px 1px rgba(0, 0, 0, 0.75);
   transition: transform 0.3s ease, opacity 0.3s ease;
-  transform: scale(0.8);
-}
-
-body.show-chatbot .chatbot-popup {
-  display: block;
-  pointer-events: auto;
-  transform: scale(1);
 }
 
 .chatbot-popup * {
@@ -81,6 +78,11 @@ body.show-chatbot .chatbot-popup {
   padding: 0;
   font-family: "Inter", sans-serif;
   box-sizing: border-box;
+}
+#chatbot-container.show-chatbot .chatbot-popup {
+  display: block;
+  pointer-events: auto;
+  transform: scale(1);
 }
 
 .chat-header {
