@@ -4,15 +4,15 @@ const chatbot = {
     const position = config.position;
     const primaryColor = config.primaryColor;
     const secondaryColor = config.secondaryColor;
-    const thirdColor = config.thirdColor;
     const welcomeMessage = config.welcomeMessage;
+    const prompt = config.prompt;
+    const instructions = config.instructions;
     const fontSize = config.fontSize;
     const chatbot_id = config.chatbot_id;
     const name = config.name;
-    
+
     container.style.setProperty("--primary-color", primaryColor);
     container.style.setProperty("--secondary-color", secondaryColor);
-    container.style.setProperty("--third-color", thirdColor);
     container.style.setProperty("--scale-factor-chatbot", fontSize);
     container.classList.add(position);
 
@@ -105,14 +105,14 @@ const chatbot = {
     const chatbotToggler = document.querySelector("#chatbot-toggler");
     const closeChatbot = document.querySelector("#close-chatbot");
 
-    const ApiUrl = "https://7efb-191-115-199-8.ngrok-free.app/search";
+    const ApiUrl = "https://ceb8-191-115-199-43.ngrok-free.app";
 
     const userData = {
       chat_id: chatbot_id,
+      //instructions: instructions,
+      //prompt: prompt,
       question: null,
     };
-
-    const initialInputHeight = messageInput.scrollHeight;
 
     const createMessageElement = (content, ...classes) => {
       const div = document.createElement("div");
@@ -121,38 +121,107 @@ const chatbot = {
       return div;
     };
 
-    generateBotResponse = async (incomingMessageDiv) => {
-      const messageElement = incomingMessageDiv.querySelector(".message-text");
+    let messageHistory = [];
+    let votingInProgress = false;
 
+    const generateBotResponse = async (incomingMessageDiv) => {
+      const messageElement = incomingMessageDiv.querySelector(".message-text");
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
       };
 
+      const url = `${ApiUrl}/generate_response?chat_id=${userData.chat_id}&pregunta=${userData.question}`;
+
       try {
-        const response = await fetch(ApiUrl, requestOptions);
+        const response = await fetch(url, requestOptions);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error?.message || "Error desconocido");
+        }
+
         const data = await response.json();
+        messageHistory.push({
+          id: data.id,
+          question: data.question,
+          answer: data.answer,
+          chatbot_id: chatbot_id,
+        });
+        const apiResponseText = data.answer;
 
-        if (!response.ok) throw new Error(data.error.message);
-
-        const apiResponseText = data.response;
-        messageElement.innerHTML = apiResponseText;
+        messageElement.innerHTML = `
+          ${apiResponseText}
+          <div class="response-actions">
+            <button class="like-button" data-id="${data.id}">👍</button>
+            <button class="dislike-button" data-id="${data.id}">👎</button>
+          </div>`;
+        chatBody.addEventListener("click", handleVoteClick);
       } catch (error) {
-        messageElement.innerHTML = "Error al obtener la respuesta del bot.";
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Error al obtener la respuesta del bot.";
+        messageElement.innerHTML = `Error: ${errorMessage}`;
       } finally {
         incomingMessageDiv.classList.remove("thinking");
         chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
       }
     };
 
+    const handleVoteClick = async (e) => {
+      if (votingInProgress) return;
+
+      if (
+        e.target.classList.contains("like-button") ||
+        e.target.classList.contains("dislike-button")
+      ) {
+        votingInProgress = true;
+
+        const messageId = e.target.dataset.id;
+        const voteType = e.target.classList.contains("like-button") ? "1" : "2";
+        await handleVote(messageId, voteType);
+
+        const parent = e.target.closest(".response-actions");
+        const buttons = parent.querySelectorAll("button");
+
+        buttons.forEach((button) => {
+          button.classList.add("disabled");
+          if (button === e.target) {
+            button.classList.add("selected");
+          }
+        });
+        votingInProgress = false;
+      }
+    };
+
+    const handleVote = async (id, vote) => {
+      const message = messageHistory.find((message) => message.id === id);
+      const { question, answer, chatbot_id } = message;
+
+      const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      };
+
+      const url = `${ApiUrl}/vote?fragment_id=${id}&chat_id=${chatbot_id}&vote=${vote}&pregunta=${question}&respuesta=${answer}`;
+
+      try {
+        const response = await fetch(url, requestOptions);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.error?.message || "Error al enviar la votación."
+          );
+        }
+      } catch (error) {
+        console.error("Error al enviar la votación:", error);
+      }
+    };
+
     const handleOutgoingMessage = (e) => {
       e.preventDefault();
-
       userData.question = messageInput.value.trim();
       messageInput.value = "";
-      messageInput.style.height = `${initialInputHeight}px`;
-
       const messageContent = `<div class="message-text"></div>`;
       const outgoingMessageDiv = createMessageElement(
         messageContent,
@@ -161,33 +230,29 @@ const chatbot = {
       outgoingMessageDiv.querySelector(".message-text").textContent =
         userData.question;
       chatBody.appendChild(outgoingMessageDiv);
-
       chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
-
-      setTimeout(() => {
-        const botThinkingContent = `<svg class="bot-avatar" fill="#000000" width="50px" height="50px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M21.928 11.607c-.202-.488-.635-.605-.928-.633V8c0-1.103-.897-2-2-2h-6V4.61c.305-.274.5-.668.5-1.11a1.5 1.5 0 0 0-3 0c0 .442.195.836.5 1.11V6H5c-1.103 0-2 .897-2 2v2.997l-.082.006A1 1 0 0 0 1.99 12v2a1 1 0 0 0 1 1H3v5c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5a1 1 0 0 0 1-1v-1.938a1.006 1.006 0 0 0-.072-.455zM5 20V8h14l.001 3.996L19 12v2l.001.005.001 5.995H5z"/>
-                    <ellipse cx="8.5" cy="12" rx="1.5" ry="2" />
-                    <ellipse cx="15.5" cy="12" rx="1.5" ry="2" />
-                    <path d="M8 16h8v2H8z"/>
-                </svg>
-                <div class="message-text">
-                    <div class="thinking-indicator">
-                        <div class="dot"></div>
-                        <div class="dot"></div>
-                        <div class="dot"></div>
-                    </div>
-                </div>`;
-
-        const incomingMessageDiv = createMessageElement(
-          botThinkingContent,
-          "bot-message",
-          "thinking"
-        );
-        chatBody.appendChild(incomingMessageDiv);
-        chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
-        generateBotResponse(incomingMessageDiv);
-      }, 1000);
+      const botThinkingContent = `
+        <svg class="bot-avatar" fill="#000000" width="50px" height="50px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21.928 11.607c-.202-.488-.635-.605-.928-.633V8c0-1.103-.897-2-2-2h-6V4.61c.305-.274.5-.668.5-1.11a1.5 1.5 0 0 0-3 0c0 .442.195.836.5 1.11V6H5c-1.103 0-2 .897-2 2v2.997l-.082.006A1 1 0 0 0 1.99 12v2a1 1 0 0 0 1 1H3v5c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5a1 1 0 0 0 1-1v-1.938a1.006 1.006 0 0 0-.072-.455zM5 20V8h14l.001 3.996L19 12v2l.001.005.001 5.995H5z"/>
+          <ellipse cx="8.5" cy="12" rx="1.5" ry="2" />
+          <ellipse cx="15.5" cy="12" rx="1.5" ry="2" />
+          <path d="M8 16h8v2H8z"/>
+        </svg>
+        <div class="message-text">
+          <div class="thinking-indicator">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+        </div>`;
+      const incomingMessageDiv = createMessageElement(
+        botThinkingContent,
+        "bot-message",
+        "thinking"
+      );
+      chatBody.appendChild(incomingMessageDiv);
+      chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
+      generateBotResponse(incomingMessageDiv);
     };
 
     messageInput.addEventListener("keydown", (e) => {
@@ -201,22 +266,6 @@ const chatbot = {
         handleOutgoingMessage(e);
       }
     });
-
-    messageInput.addEventListener("input", () => {
-      messageInput.style.height = `${initialInputHeight}px`;
-      messageInput.style.height = `${messageInput.scrollHeight}px`;
-      document.querySelector(".chat-form").computedStyleMap.borderRaduis =
-        messageInput.scrollHeight > initialInputHeight ? "15px" : "32px";
-    });
-
-    //probarEste
-    /*messageInput.addEventListener("input", () => {
-      messageInput.style.height = `${initialInputHeight}px`;
-      messageInput.style.height = `${messageInput.scrollHeight}px`;
-      const borderRadius =
-        messageInput.scrollHeight > initialInputHeight ? "15px" : "32px";
-      messageInput.style.borderRadius = borderRadius;
-    });*/
 
     sendMessageButton.addEventListener("click", (e) =>
       handleOutgoingMessage(e)

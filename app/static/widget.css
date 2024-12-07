@@ -1,28 +1,25 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap");
-
 #chatbot-container {
   --primary-color: #5350c4;
   --secondary-color: #3d39ac;
-  --third-color: #f1f1f1;
   --scale-factor-chatbot: 1.2;
 }
 
-#chatbot-container.bottom-right #chatbot-toggler {
+#chatbot-container.right #chatbot-toggler {
   right: 35px;
   bottom: 30px;
 }
 
-#chatbot-container.bottom-right .chatbot-popup {
+#chatbot-container.right .chatbot-popup {
   right: 35px;
   bottom: 90px;
 }
 
-#chatbot-container.bottom-left #chatbot-toggler {
+#chatbot-container.left #chatbot-toggler {
   bottom: 30px;
   left: 35px;
 }
 
-#chatbot-container.bottom-left .chatbot-popup {
+#chatbot-container.left .chatbot-popup {
   bottom: 90px;
   left: 35px;
 }
@@ -129,6 +126,49 @@
   transition: 0.2s ease;
 }
 
+.response-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  position: relative; /* Esto asegura que el textarea se posicione debajo de la acción de los botones */
+}
+
+.like-button,
+.dislike-button {
+  background-color: transparent;
+  outline: none;
+  border: none;
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.like-button:hover {
+  background-color: #b6e7b6;
+}
+
+.dislike-button:hover {
+  background-color: #f7c6c6;
+}
+
+.like-button.selected {
+  background-color: #95d695;
+}
+
+.dislike-button.selected {
+  background-color: #f48a8a;
+}
+
+.like-button.disabled,
+.dislike-button.disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 1;
+}
+
 .chat-header #close-chatbot:hover {
   background: var(--secondary-color);
 }
@@ -142,8 +182,9 @@
   overflow-y: auto;
   flex-direction: column;
   scrollbar-width: thin;
-  scrollbar-color: var(--third-color) transparent;
+  scrollbar-color: var(--primary-color) transparent;
 }
+
 .chat-body .message {
   display: flex;
   gap: 11px;
@@ -179,7 +220,8 @@
 }
 
 .chat-body .bot-message .message-text {
-  background-color: var(--third-color);
+  background-color: var(--primary-color);
+  color: #fff;
   border-radius: 13px 13px 13px 3px;
 }
 
@@ -200,7 +242,7 @@
   width: 7px;
   opacity: 0.7;
   border-radius: 50%;
-  background: var(--secondary-color);
+  background: #fff;
   animation: dotPulse 1.8s ease-in-out infinite;
 }
 
@@ -242,6 +284,7 @@
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
   background: #fff;
   border-radius: 32px;
   outline: 1px solid var(--secondary-color);
@@ -267,7 +310,7 @@
 }
 
 .chat-form .message-input:hover {
-  scrollbar-color: var(--third-color) transparent;
+  scrollbar-color: var(--primary-color) transparent;
 }
 
 .chat-form .chat-controls {
@@ -306,7 +349,7 @@
 }
 
 .chat-form .chat-controls button:hover {
-  background: var(--third-color);
+  background: var(--primary-color);
 }
 
 @media (max-width: 520px) {
